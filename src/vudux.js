@@ -39,9 +39,17 @@ window.Vudux = function(element) {
     }
 
     if(vudux_data.get("reducer") != undefined) {
-      store = Redux.createStore(vudux_data.get("reducer"));
+      store = Redux.createStore(vudux_data.get("reducer"), vudux_data.get("state"), (
+        window.devToolsExtension ? window.devToolsExtension() : function (f) {
+          return f;
+        }
+      ));
     } else {
-      store = Redux.createStore(vudux_reducer);
+      store = Redux.createStore(vudux_reducer, vudux_data.get("state"), (
+        window.devToolsExtension ? window.devToolsExtension() : function (f) {
+          return f;
+        }
+      ));
       vudux_data.set("reducer", vudux_reducer);
     }
 
