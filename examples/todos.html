@@ -1,0 +1,84 @@
+<script src="https://cdn.jsdelivr.net/zepto/1.1.6/zepto.min.js"></script>
+<script src="https://cdn.jsdelivr.net/lodash/4.7.0/lodash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/redux/3.3.1/redux.min.js"></script>
+<script src="https://cdn.jsdelivr.net/vue/1.0.20/vue.min.js"></script>
+<script src="js/lib/vudux_data.js"></script>
+<script src="js/lib/vudux_reducer.js"></script>
+<script src="js/lib/vudux.js"></script>
+
+<style>
+  .done {
+    opacity: 0.4;
+  }
+</style>
+
+
+<section class="todos">
+  <input type="text" v-model="todo_input_label" />
+  <button v-on:click="add_todo">add todo</button>
+
+  <ul class="items">
+    <template v-for="todo in todos">
+      <li class="{{todo.state}}" v-on:click="toggle_todo(todo)">{{todo.label}}</li>
+    </template>
+  </ul>
+</section>
+
+<script>
+  var state = {
+    todo_input_label: "",
+    todos: [
+      { label: "Task 1", state: "undone" },
+      { label: "Task 2", state: "undone" },
+      { label: "Task 3", state: "undone" },
+    ],
+  };
+  
+  var view = new Vudux(".todos");
+  view.set("state", state)
+
+  view.set("methods", {
+    add_todo: function() {
+      view.getStore().dispatch({ type: "ADD_TODO", todo: {
+        label: this.todo_input_label,
+        state: "undone"
+      }})
+    },
+    toggle_todo: function(todo) {
+      view.getStore().dispatch({ type: "TOGGLE_TODO", todo: todo });
+    },
+  });
+
+  view.set("compositor", {
+    "TOGGLE_TODO": function(state, action) {
+      return _.assign({}, state, {
+        todos: state.todos.map(function(t) {
+          if(t.label != action.todo.label) {
+            return t;
+          }
+
+          return _.assign({}, t, {
+            state: (t.state == "undone" ? "done" : "undone")
+          })
+        })
+      })
+    },
+
+    "ADD_TODO": function(state, action) {
+      var state = _.assign({}, state, {
+        todos: _.concat(state.todos, [{
+          label: action.todo.label,
+          state: action.todo.state,
+        }])
+      })
+
+      return state;
+    },
+  })
+
+  view.set("render", function(state) {
+    view.getView().$set("todos", _.assign({}, state.todos));
+  })
+
+  view.start();
+</script>

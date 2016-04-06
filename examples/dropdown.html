@@ -1,0 +1,98 @@
+<script src="https://cdn.jsdelivr.net/zepto/1.1.6/zepto.min.js"></script>
+<script src="https://cdn.jsdelivr.net/lodash/4.7.0/lodash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/redux/3.3.1/redux.min.js"></script>
+<script src="https://cdn.jsdelivr.net/vue/1.0.20/vue.min.js"></script>
+<script src="../src/vudux_data.js"></script>
+<script src="../src/vudux_reducer.js"></script>
+<script src="../src/vudux.js"></script>
+<style>
+  .product-color .items {
+
+  }
+</style>
+
+<section class="product-color">
+  <p class="selected-text" v-on:click="open_color_dropdown"></p>
+  <ul class="items" v-show="color_dropdown_visibility">
+
+    <template v-for="c in colors">
+      <li class="item" v-on:click="dropdown_select_color(c.color)">
+        <i class="cor-preto"></i>
+        <span>{{c.color}}</span>
+      </li>
+    </template>
+  </ul>
+</section>
+
+<script>
+
+  // Instanciating view.
+  window.view = new Vudux(".product-color");
+  view.set("state", {
+    colors: [
+      {color:"preto"},
+      {color:"branco"},
+      {color:"marinho"},
+      {color:"cinza"},
+    ],
+    color_dropdown_visibility: false,
+    size_dropdown_visibility: false,
+    sizes: [],
+    remarked_price: false,
+    selected_color: "Escolha a cor...",
+    selected_size: "Escolha o tamanho..."
+  });
+
+  // Defining Vue Methods
+  view.set("methods", {
+    open_color_dropdown: function() {
+      view.getStore().dispatch({
+        type: "TOGGLE_COLOR_DROPDOWN",
+      });
+    },
+    dropdown_select_color: function(color) {
+      view.getStore().dispatch({
+        type: "SELECT_COLOR",
+        selection: color
+      })
+    }
+  })
+
+  // Defining Reducer Compositors
+  view.set("compositor", {
+    "TOGGLE_COLOR_DROPDOWN": function(state, action) {
+      console.log("Toglando Dropdown de Cor!");
+
+      var visibility = state.color_dropdown_visibility;
+      if(action.visibility == undefined) {
+        visibility = !visibility;
+      }
+
+      return _.assign({}, state, {
+        color_dropdown_visibility: visibility
+      })
+    },
+
+    SELECT_COLOR: function(state, action) {
+      console.log("Selecionando uma cor!");
+
+      return _.assign({}, state, {
+        color_dropdown_visibility: false,
+        selected_color: "Cor selecionada: "+action.selection
+      });
+    }
+  });
+
+
+  // Defining Render Function (executed after right Compositor)
+  view.set("render", function(state) {
+    $(".product-color .selected-text").text(state.selected_color);
+    if(window.view.getView() != undefined) {
+      window.view.getView().$set("colors", _.assign({}, state.colors));
+      window.view.getView().$set("color_dropdown_visibility", _.assign({},state.color_dropdown_visibility));
+    }
+  });
+
+  // Starting View
+  view.start();
+</script>
