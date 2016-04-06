@@ -2,9 +2,9 @@
 <script src="https://cdn.jsdelivr.net/lodash/4.7.0/lodash.min.js"></script>
 <script src="https://cdn.jsdelivr.net/redux/3.3.1/redux.min.js"></script>
 <script src="https://cdn.jsdelivr.net/vue/1.0.20/vue.min.js"></script>
-<script src="js/lib/vudux_data.js"></script>
-<script src="js/lib/vudux_reducer.js"></script>
-<script src="js/lib/vudux.js"></script>
+<script src="../src/vudux_data.js"></script>
+<script src="../src/vudux_reducer.js"></script>
+<script src="../src/vudux.js"></script>
 
 <style>
   .done {
@@ -33,7 +33,7 @@
       { label: "Task 3", state: "undone" },
     ],
   };
-  
+
   var view = new Vudux(".todos");
   view.set("state", state)
 
