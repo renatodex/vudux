@@ -1,3 +1,45 @@
+var VuduxData = function() {
+  var data = {};
+
+  var set = function(key, value) {
+    data[key] = value;
+  }
+
+  var get = function(key) {
+    return data[key];
+  }
+
+  return {
+    get:get,
+    set:set
+  }
+}
+var VuduxReducer = function(vudux_data) {
+  return function(state, action) {
+    if(state === undefined)
+      return vudux_data.get("state");
+
+    var compositor = vudux_data.get("compositor");
+
+    if(typeof(compositor) == "undefined") {
+      console.warn("[COMPOSITOR IS NOT DEFINED]");
+      console.warn("You should consider to define your own compositor class.");
+      console.warn("For you safety, the default reducer will not work without a compositor.");
+      return state;
+    }
+
+    if(typeof(compositor[action.type]) == "undefined") {
+      console.warn("[ACTION " + action.type + " IS NOT DEFINED]");
+      console.warn("You should consider double check your compositors.");
+      return state;
+    }
+
+    var action_type = compositor[action.type];
+    return action_type(state, action);
+
+    return state;
+  }
+}
 // HOW TO USE:
 //
 // var view = new Vudux(".product-color");
@@ -54,7 +96,7 @@ window.Vudux = function(element) {
     }
 
     store.subscribe(function() {
-      subscribe_flow();
+      vudux_data.get("render")(store.getState());
     });
 
     vudux_data.set("view", new Vue({
@@ -63,26 +105,7 @@ window.Vudux = function(element) {
       methods: vudux_data.get("methods")
     }))
 
-    subscribe_flow();
-  }
-
-  var subscribe_flow = function() {
-    console.log("Starting Subscribe Flow");
-
-    // 1. Syncing Vue State with Redux State
-    _.each(store.getState(), function(v,k) {
-      if(typeof(v) == "object") {
-        vudux_data.get("view").$set(k, _.assign({}, v));
-      } else {
-        vudux_data.get("view").$set(k, v);
-      }
-    })
-
-    // 2. Calling external render method, passing actual state
     vudux_data.get("render")(store.getState());
-
-    // 3. Syncing Vudux State var with Redux State
-    vudux_data.set('state', _.assign({}, store.getState()));
   }
 
   return {
