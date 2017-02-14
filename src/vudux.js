@@ -38,6 +38,10 @@ window.Vudux = function(element) {
       vudux_data.set("render", function(){});
     }
 
+    if(typeof(vudux_data.get("computed")) == "undefined") {
+      vudux_data.set("computed", {});
+    }
+
     if(vudux_data.get("reducer") != undefined) {
       store = Redux.createStore(vudux_data.get("reducer"), vudux_data.get("state"), (
         window.devToolsExtension ? window.devToolsExtension() : function (f) {
@@ -54,25 +58,30 @@ window.Vudux = function(element) {
     }
 
     store.subscribe(function() {
-      subscribe_flow();
+      subscribe_flow(vudux_data, store);
     });
 
     vudux_data.set("view", new Vue({
       el: element,
-      data: {},
-      methods: vudux_data.get("methods")
+      data: vudux_data.get("state"),
+      methods: vudux_data.get("methods"),
+      computed: vudux_data.get("computed")
     }))
 
-    subscribe_flow();
+    subscribe_flow(vudux_data, store);
   }
 
-  var subscribe_flow = function() {
+  var subscribe_flow = function(vudux_data, store) {
     console.log("Starting Subscribe Flow");
 
     // 1. Syncing Vue State with Redux State
     _.each(store.getState(), function(v,k) {
-      if(typeof(v) == "object") {
+      // vudux_data.get("view").$delete(k);
+
+      if(_.isPlainObject(v)) {
         vudux_data.get("view").$set(k, _.assign({}, v));
+      } else if(_.isArray(v)) {
+        vudux_data.get("view").$set(k, _.assign([], v));
       } else {
         vudux_data.get("view").$set(k, v);
       }
