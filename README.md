@@ -16,6 +16,20 @@ You must download and require the dependencies before Vudux Script.
 
 ## How to Use
 
+Vudux is composed of 4 modules:
+
+- State
+The State represents the global State of your application. A Syncornization of Vue Data and Redux State.
+
+- Methods
+Methods are only an alias to Vue Methods.
+
+- Compositors
+Compositors is an abstraction of Redux Reducers.
+
+- Render
+The Render method is the Redux subscribed Render function. 
+
 ```javascript
  var state = {
     todo_input_label: "",
